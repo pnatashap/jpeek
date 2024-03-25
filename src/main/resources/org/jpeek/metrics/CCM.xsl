@@ -41,13 +41,14 @@ SOFTWARE.
     </metric>
   </xsl:template>
   <xsl:template match="class">
+    <xsl:variable name="classname" select="concat(@id, '.')"/>
     <xsl:variable name="methods" select="methods/method[@ctor='false']"/>
     <xsl:variable name="edges">
       <xsl:for-each select="$methods">
         <xsl:variable name="method" select="."/>
         <xsl:for-each select="$method/following-sibling::method">
           <xsl:variable name="other" select="."/>
-          <xsl:if test="$method/ops/op/text()[. = $other/ops/op/text()]">
+          <xsl:if test="$method/ops/op/text()[. = $other/ops/op/text()] or $method/ops/op/name/text()[. = concat($classname, $other/@name)] or $other/ops/op/name/text()[. = concat($classname, $method/@name)]">
             <edge>
               <method>
                 <xsl:value-of select="$method/@name"/>
@@ -89,6 +90,7 @@ SOFTWARE.
           <xsl:value-of select="$nmp"/>
         </var>
       </vars>
+      <xsl:copy-of select="$edges"/>
     </xsl:copy>
   </xsl:template>
   <xsl:template match="node()|@*">
